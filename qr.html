@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThomasLab | QR Master Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #38bdf8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        :root[data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --accent: #0284c7;
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        /* الهيدر الرئيسي */
+        .main-header {
+            background: var(--card-bg);
+            padding: 0.8rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        /* هيدر الأدوات (الثاني) */
+        .tools-nav {
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .glass-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .custom-input {
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 14px;
+            color: var(--text-main);
+            outline: none;
+            transition: 0.2s;
+        }
+        [data-theme="light"] .custom-input { background-color: #f8fafc; color: #1e293b; }
+
+        .active-tab { 
+            background: var(--accent) !important; 
+            color: white !important; 
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .tool-section { display: none; }
+        .tool-section.active { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        footer { background: var(--card-bg); border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="flex items-center">
+            <a href="index.html" class="bg-slate-700 text-white px-3 py-1 rounded-lg text-sm ml-4 hover:bg-slate-600 transition">الرئيسية</a>
+            <div class="flex items-center">
+                <img src="https://cdn-icons-png.flaticon.com/512/3211/3211468.png" alt="Logo" class="h-8 ml-3">
+                <h1 class="text-lg font-black tracking-tight">ThomasLab <span class="font-light opacity-70">| أدوات المطورين</span></h1>
+            </div>
+        </div>
+        <button onclick="toggleTheme()" class="border border-sky-500 text-sky-500 px-4 py-1 rounded-full text-sm hover:bg-sky-500 hover:text-white transition">🌓 المظهر</button>
+    </header>
+
+    <nav class="tools-nav">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-center items-center gap-2">
+        <div class="flex justify-center bg-slate-800/50 p-1 rounded-xl md:w-auto overflow-x-auto no-scrollbar gap-1">
+            <button onclick="showTool(1)" id="tab1" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm text-slate-400 hover:text-white">توليد التسلسل (ZIP)</button>
+            <button onclick="showTool(2)" id="tab2" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm text-slate-400 hover:text-white">تجهيز الطباعة (PDF)</button>
+            <button onclick="showTool(3)" id="tab3" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm text-slate-400 hover:text-white">الدمج الذكي (Direct)</button>
+            <button onclick="showTool(4)" id="tab4" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm active-tab">بيانات الإكسيل (Excel)</button>
+        </div>
+    </div>
+</nav>
+
+    <main style="padding-top: 1.3rem;" class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <section id="tool1" class="tool-section transition-all">
+            <div class="glass-card p-6 md:p-10">
+                <div class="mb-8 border-r-4 border-sky-500 pr-4">
+                    <h2 class="text-2xl font-black">إنشاء أكواد QR متسلسلة</h2>
+                    <p class="opacity-60 text-sm mt-1">قم بتوليد مئات الأكواد مع أرقامها بضغطة زر واحدة</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div>
+                        <label class="block text-xs font-bold mb-2 opacity-70">رقم البداية</label>
+                        <input type="number" id="t1Start" value="1" class="custom-input">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-2 opacity-70">رقم النهاية</label>
+                        <input type="number" id="t1End" value="10" class="custom-input">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold mb-2 opacity-70">الحجم الافتراضي (PX)</label>
+                        <input type="number" id="t1Size" value="300" class="custom-input">
+                    </div>
+                </div>
+                <button onclick="generateT1()" id="btnT1" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3">
+                    بدء التوليد والتحميل (ZIP)
+                </button>
+                <div id="statusT1" class="mt-6 text-center font-bold text-sky-400 animate-pulse min-h-[1.5rem]"></div>
+            </div>
+        </section>
+
+        <section id="tool2" class="tool-section">
+            <div class="glass-card p-6 md:p-10">
+                <div class="mb-8 border-r-4 border-emerald-500 pr-4">
+                    <h2 class="text-2xl font-black">تحويل الصور إلى PDF</h2>
+                    <p class="opacity-60 text-sm mt-1">ارفع صورك أو ملف الـ ZIP الذي قمت بتوليده سابقاً</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                    <label class="group relative flex flex-col items-center justify-center p-10 border-2 border-dashed border-slate-700 rounded-3xl cursor-pointer hover:border-emerald-500 transition-all text-center">
+                        <span class="opacity-60 font-bold">ارفع ZIP أو صور فردية</span>
+                        <input type="file" id="t2Input" multiple accept="image/*,.zip" class="hidden">
+                        <div id="t2Count" class="mt-2 text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full hidden"></div>
+                    </label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold opacity-60 mb-1">اسم ملف الـ PDF</label>
+                            <input type="text" id="t2Name" placeholder="QR_Print_File" class="custom-input font-bold">
+                        </div>
+                        <div><label class="block text-[10px] font-bold opacity-60 mb-1">أعمدة x صفوف</label>
+                            <div class="flex gap-1"><input type="number" id="t2Cols" value="5" class="custom-input text-center"><input type="number" id="t2Rows" value="7" class="custom-input text-center"></div>
+                        </div>
+                        <div><label class="block text-[10px] font-bold opacity-60 mb-1">المسافة (مم)</label><input type="number" id="t2Spacing" value="3" class="custom-input text-center font-bold"></div>
+                    </div>
+                </div>
+                <button onclick="generateT2()" id="btnT2" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl shadow-lg transition-all">إنشاء ملف PDF</button>
+                <div id="statusT2" class="mt-4 text-center font-bold text-emerald-400 animate-pulse"></div>
+            </div>
+        </section>
+
+        <section id="tool3" class="tool-section transition-all">
+            <div class="glass-card p-6 md:p-10 border-sky-500/30">
+                <div class="mb-8 border-r-4 border-sky-600 pr-4">
+                    <h2 class="text-2xl font-black">الدمج الذكي: من الأرقام إلى PDF</h2>
+                    <p class="opacity-60 text-sm mt-1">توليد الأكواد وترتيبها في ملف PDF واحد بضغطة زر</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="space-y-4">
+                        <h3 class="font-black text-sky-400 border-b border-white/10 pb-2">1. إعدادات الأكواد</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-bold opacity-60 mb-1">رقم البداية</label><input type="number" id="t3Start" value="1" class="custom-input"></div>
+                            <div><label class="block text-xs font-bold opacity-60 mb-1">رقم النهاية</label><input type="number" id="t3End" value="50" class="custom-input"></div>
+                        </div>
+                        <div><label class="block text-xs font-bold opacity-60 mb-1">اسم ملف الـ PDF الناتج</label><input type="text" id="t3Name" placeholder="QR_Work_Order" class="custom-input font-bold text-sky-400"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="font-black text-emerald-400 border-b border-white/10 pb-2">2. تنسيق الطباعة (A4)</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div><label class="block text-[10px] font-bold opacity-60 mb-1 text-center">أعمدة</label><input type="number" id="t3Cols" value="5" class="custom-input text-center font-bold"></div>
+                            <div><label class="block text-[10px] font-bold opacity-60 mb-1 text-center">صفوف</label><input type="number" id="t3Rows" value="7" class="custom-input text-center font-bold"></div>
+                            <div><label class="block text-[10px] font-bold opacity-60 mb-1 text-center">المسافة(مم)</label><input type="number" id="t3Spacing" value="3" class="custom-input text-center font-bold"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="generateT3()" id="btnT3" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-black py-4 rounded-2xl shadow-xl transform transition-all text-lg">
+                    توليد وحفظ ملف PDF الآن
+                </button>
+                <div id="statusT3" class="mt-6 text-center font-bold text-sky-400 animate-pulse min-h-[1.5rem]"></div>
+            </div>
+        </section>
+
+        <section id="tool4" class="tool-section active transition-all">
+            <div class="glass-card p-6 md:p-10 border-amber-500/50 shadow-amber-900/10">
+                <div class="mb-8 border-r-4 border-amber-500 pr-4">
+                    <h2 class="text-2xl font-black">من إكسيل إلى PDF</h2>
+                    <p class="opacity-60 text-sm mt-1">إنشاء QR مخصص لكل اسم من جدول البيانات</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="space-y-4">
+                        <h3 class="font-black text-amber-500 border-b border-white/10 pb-2">1. ملف البيانات</h3>
+                        <label class="block">
+                            <span class="text-xs font-bold opacity-60">اختر ملف Excel أو CSV</span>
+                            <input type="file" id="t4Excel" accept=".xlsx, .xls, .csv" class="mt-1 block w-full border-2 border-dashed border-slate-700 p-4 rounded-2xl text-sm">
+                        </label>
+                        <input type="text" id="t4Name" placeholder="اسم ملف الـ PDF الناتج" class="custom-input font-bold text-amber-500">
+                    </div>
+                    <div class="space-y-4">
+                        <h3 class="font-black text-emerald-400 border-b border-white/10 pb-2">2. تنسيق الصفحة</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div><label class="text-[10px] font-bold block text-center opacity-60">أعمدة</label><input type="number" id="t4Cols" value="5" class="custom-input text-center font-bold"></div>
+                            <div><label class="text-[10px] font-bold block text-center opacity-60">صفوف</label><input type="number" id="t4Rows" value="7" class="custom-input text-center font-bold"></div>
+                            <div><label class="text-[10px] font-bold block text-center opacity-60">مسافة(مم)</label><input type="number" id="t4Spacing" value="3" class="custom-input text-center font-bold"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="processExcel()" id="btnT4" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-black py-5 rounded-2xl shadow-xl transition-all text-lg">معالجة وتصدير PDF</button>
+                <div id="statusT4" class="mt-6 text-center font-bold text-amber-500 animate-pulse min-h-[0.5rem]"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-4">
+        <div class="max-w-6xl mx-auto text-center text-xs font-bold opacity-60">
+            جميع الحقوق محفوظة &copy; 2026 <a target="_blank" href="https://www.linkedin.com/in/tomaseg" class="text-sky-400 underline ml-1">ThomasLab's</a>
+        </div>
+    </footer>
+
+    <div id="temp-qr" class="hidden"></div>
+    <canvas id="finalCanvas" class="hidden"></canvas>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+
+        function showTool(n) {
+            document.querySelectorAll('.tool-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('tool' + n).classList.add('active');
+            [1,2,3,4].forEach(i => {
+                document.getElementById('tab'+i).classList.remove('active-tab');
+            });
+            document.getElementById('tab' + n).classList.add('active-tab');
+        }
+
+        // الحفاظ على المنطق البرمجي للأدوات كما هو تماماً
+        document.getElementById('t2Input').addEventListener('change', function(e) {
+            const el = document.getElementById('t2Count');
+            if(e.target.files.length > 0) {
+                el.innerText = e.target.files[0].name.endsWith('.zip') ? "✅ ملف ZIP جاهز" : `✅ تم اختيار ${e.target.files.length} صورة`;
+                el.classList.remove('hidden');
+            }
+        });
+
+        async function generateT1() {
+            const start = parseInt(document.getElementById('t1Start').value), end = parseInt(document.getElementById('t1End').value), size = parseInt(document.getElementById('t1Size').value);
+            const status = document.getElementById('statusT1'); const zip = new JSZip();
+            status.innerText = "⏳ جاري التوليد...";
+            const canvas = document.getElementById('finalCanvas'); const ctx = canvas.getContext('2d');
+            canvas.width = size + (size*0.2); canvas.height = size + (size*0.35);
+            for(let i=start; i<=end; i++){
+                status.innerText = `🔄 معالجة الكود: ${i}`;
+                const div = document.getElementById('temp-qr'); div.innerHTML = "";
+                new QRCode(div, {text: i.toString(), width: size, height: size});
+                await new Promise(r => setTimeout(r, 40));
+                ctx.fillStyle = "white"; ctx.fillRect(0,0,canvas.width, canvas.height);
+                ctx.drawImage(div.querySelector('canvas'), size*0.1, size*0.1);
+                ctx.fillStyle = "black"; ctx.font = `bold ${size*0.12}px Cairo`; ctx.textAlign="center";
+                ctx.fillText(i.toString(), canvas.width/2, size + (size*0.25));
+                zip.file(`QR_${i}.png`, canvas.toDataURL("image/png").split(',')[1], {base64: true});
+            }
+            saveAs(await zip.generateAsync({type:"blob"}), `QR_Series_${start}_to_${end}.zip`);
+            status.innerText = "✅ تم التحميل بنجاح!";
+        }
+
+        async function generateT2() {
+            const files = document.getElementById('t2Input').files, customName = document.getElementById('t2Name').value || "QR_Print_Job";
+            const status = document.getElementById('statusT2'); if(files.length === 0) return alert("اختر ملفات أولاً");
+            status.innerText = "🚀 جاري تجميع الصور...";
+            let images = [];
+            if(files[0].name.endsWith('.zip')){
+                const zip = await new JSZip().loadAsync(files[0]);
+                for(let path in zip.files) if(!zip.files[path].dir && /\.(png|jpg|jpeg)$/i.test(path)) images.push("data:image/png;base64," + await zip.files[path].async("base64"));
+            } else {
+                for(let f of files) images.push(await new Promise(r => { const fr = new FileReader(); fr.onload=e=>r(e.target.result); fr.readAsDataURL(f); }));
+            }
+            const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
+            const cols = parseInt(document.getElementById('t2Cols').value), rows = parseInt(document.getElementById('t2Rows').value), sp = parseInt(document.getElementById('t2Spacing').value);
+            const w = (190 - (sp*(cols-1)))/cols, h = (277 - (sp*(rows-1)))/rows;
+            let c=0, r=0;
+            images.forEach((img, i) => {
+                doc.addImage(img, 'PNG', 10+(c*(w+sp)), 10+(r*(h+sp)), w, h);
+                c++; if(c>=cols){ c=0; r++; }
+                if(r>=rows && i < images.length-1){ doc.addPage(); c=0; r=0; }
+            });
+            doc.save(`${customName}.pdf`); status.innerText = "✅ تم الحفظ!";
+        }
+
+        async function generateT3() {
+            const start = parseInt(document.getElementById('t3Start').value), end = parseInt(document.getElementById('t3End').value), customName = document.getElementById('t3Name').value || "Direct_QR_Print";
+            const cols = parseInt(document.getElementById('t3Cols').value), rows = parseInt(document.getElementById('t3Rows').value), sp = parseInt(document.getElementById('t3Spacing').value);
+            const status = document.getElementById('statusT3'); const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
+            const w = (190 - (sp*(cols-1)))/cols, h = (277 - (sp*(rows-1)))/rows;
+            const canvas = document.getElementById('finalCanvas'); const ctx = canvas.getContext('2d');
+            canvas.width = 400; canvas.height = 500;
+            let c=0, r=0;
+            for(let i=start; i<=end; i++){
+                status.innerText = `🔄 جاري معالجة الكود ${i}`;
+                const div = document.getElementById('temp-qr'); div.innerHTML = "";
+                new QRCode(div, {text: i.toString(), width: 300, height: 300});
+                await new Promise(res => setTimeout(res, 40));
+                ctx.fillStyle = "white"; ctx.fillRect(0,0,400,500);
+                ctx.drawImage(div.querySelector('canvas'), 50, 50);
+                ctx.fillStyle = "black"; ctx.font = "bold 45px Cairo"; ctx.textAlign="center";
+                ctx.fillText(i.toString(), 200, 420);
+                doc.addImage(canvas.toDataURL("image/png"), 'PNG', 10+(c*(w+sp)), 10+(r*(h+sp)), w, h);
+                c++; if(c>=cols){ c=0; r++; }
+                if(r>=rows && i<end){ doc.addPage(); c=0; r=0; }
+            }
+            doc.save(`${customName}.pdf`); status.innerText = "✅ تم الإنجاز!";
+        }
+
+        async function processExcel() {
+            const fileInput = document.getElementById('t4Excel'), status = document.getElementById('statusT4'), customName = document.getElementById('t4Name').value || "Excel_QR_Labels";
+            if(!fileInput.files[0]) return alert("اختر ملف إكسيل أولاً");
+            status.innerText = "⏳ جاري قراءة البيانات...";
+            try {
+                const workbook = XLSX.read(await fileInput.files[0].arrayBuffer());
+                const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                if(json.length === 0) throw new Error("الملف فارغ");
+                const keys = Object.keys(json[0]);
+                const qrKey = keys.find(k => ['qr', 'id', 'code', 'كود'].includes(k.toLowerCase()));
+                const nameKey = keys.find(k => ['الاسم', 'name', 'Name'].includes(k.toLowerCase()));
+                if(!qrKey) throw new Error("يجب وجود عمود باسم (qr أو id أو code)");
+                const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
+                const cols = parseInt(document.getElementById('t4Cols').value), rows = parseInt(document.getElementById('t4Rows').value), sp = parseInt(document.getElementById('t4Spacing').value);
+                const w = (190 - (sp*(cols-1)))/cols, h = (277 - (sp*(rows-1)))/rows;
+                const canvas = document.getElementById('finalCanvas'); const ctx = canvas.getContext('2d');
+                canvas.width = 400; canvas.height = 500;
+                let c=0, r=0;
+                for(let i=0; i < json.length; i++) {
+                    const qrVal = String(json[i][qrKey] || ""), nameVal = nameKey ? String(json[i][nameKey] || "") : qrVal;
+                    status.innerText = `🔄 معالجة: ${nameVal}`;
+                    const div = document.getElementById('temp-qr'); div.innerHTML = "";
+                    new QRCode(div, {text: qrVal, width: 300, height: 300});
+                    await new Promise(res => setTimeout(res, 40));
+                    ctx.fillStyle = "white"; ctx.fillRect(0, 0, 400, 500);
+                    ctx.drawImage(div.querySelector('canvas'), 50, 50);
+                    ctx.fillStyle = "black"; ctx.font = "bold 35px Cairo"; ctx.textAlign = "center";
+                    ctx.fillText(nameVal, 200, 420);
+                    doc.addImage(canvas.toDataURL("image/png"), 'PNG', 10+(c*(w+sp)), 10+(r*(h+sp)), w, h);
+                    c++; if(c >= cols) { c=0; r++; }
+                    if(r >= rows && i < json.length - 1) { doc.addPage(); c=0; r=0; }
+                }
+                doc.save(`${customName}.pdf`); status.innerText = "✅ تم التحميل!";
+            } catch (err) { alert("خطأ: " + err.message); status.innerText = "❌ فشل"; }
+        }
+
+        window.onload = () => showTool(4);
+    </script>
+</body>
+</html>

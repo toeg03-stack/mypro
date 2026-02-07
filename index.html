@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThomasLab Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* تعريف المتغيرات للألوان */
+        :root[data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --header-bg: #1e293b;
+        }
+        :root[data-theme="light"] {
+            --bg-color: #f1f5f9;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --text-color: #1e293b;
+            --accent-color: #0284c7;
+            --header-bg: #ffffff;
+        }
+
+        /* منع السكرول وجعل الصفحة بطول الشاشة */
+        body, html {
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* يمنع السكرول */
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--header-bg);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        main {
+            flex: 1; /* يأخذ المساحة المتبقية */
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 180px;
+        }
+
+        .project-card:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: var(--accent-color);
+        }
+
+        .card-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+        footer {
+            padding: 1rem;
+            text-align: center;
+            background: var(--header-bg);
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--accent-color);
+            background: transparent;
+            color: var(--accent-color);
+        }
+
+        /* تعديل للموبايل لضمان عدم وجود سكرول */
+        @media (max-width: 768px) {
+            .projects-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .project-card { min-height: 140px; padding: 10px; font-size: 0.8rem; }
+            .card-icon { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="theme-toggle" onclick="toggleTheme()">تبديل المظهر 🌓</button>
+        <h4 class="m-0 font-weight-bold"><span style="color:var(--accent-color)">ThomasLab's</span></h4>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="projects-grid">
+                
+                <a href="qr.html" class="project-card">
+                    <div class="card-icon">🔍</div>
+                    <h5>أدوات QR Code</h5>
+                    <small>نظام QR Code متكامل</small>
+                </a>
+
+                <a href="Scout.html" class="project-card">
+                    <div class="card-icon">⚜️</div>
+                    <h5>حضور كشافة</h5>
+                    <small>إدارة وتسجيل الفرق</small>
+                </a>
+
+                <a href="report.html" class="project-card">
+                    <div class="card-icon">📄</div>
+                    <h5>تقارير الحضور</h5>
+                    <small>تحليل واستخراج البيانات</small>
+                </a>
+
+                <a href="score.html" class="project-card">
+                    <div class="card-icon">🏁</div>
+                    <h5>ترتيب المتسابقين</h5>
+                    <small>حساب النقاط والمراكز</small>
+                </a>
+
+                <a href="https://thomaseg.netlify.app/" class="project-card" style="grid-column: span 2;">
+                    <div class="card-icon">🚀</div>
+                    <h5>الصفحة الشخصية</h5>
+                    <small>السيرة الذاتية والتواصل</small>
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p class="m-0">
+            Powered by 
+            <a href="https://thomaseg.netlify.app/" target="_blank" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">ThomasLab's</a>
+        </p>
+    </footer>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+        }
+    </script>
+</body>
+</html>
