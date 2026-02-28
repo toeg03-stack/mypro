@@ -296,7 +296,7 @@
 
     <footer class="py-4">
         <div class="max-w-6xl mx-auto text-center text-xs font-bold opacity-60">
-            جميع الحقوق محفوظة &copy; 2026 <a target="_blank" href="https://www.linkedin.com/in/tomaseg" class="text-sky-400 underline ml-1">ThomasLab's</a>
+            جميع الحقوق محفوظة &copy; 2026 <a target="_blank" href="https://thomaseg.netlify.app/" class="text-sky-400 underline ml-1">ThomasLab's</a>
         </div>
     </footer>
 
@@ -461,7 +461,7 @@
         
         const sName = document.getElementById('t5ServiceName').value || "";
         const rawLevelName = document.getElementById('t5LevelName').value || "";
-        const lName = rawLevelName ? "" + rawLevelName : ""; //امكانية اضافة كلمة ثابته قبل السم المرحله (فريق او فصل اومجموعة)
+        const lName = rawLevelName ? "" + rawLevelName : ""; //امكانية اضافة كلمة ثابته قبل اسم المرحله (فريق او فصل اومجموعة)
 
         const workbook = XLSX.read(await excelFile.arrayBuffer());
         const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
@@ -554,3 +554,4 @@
     </script>
 </body>
 </html>
+
