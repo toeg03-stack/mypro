@@ -99,8 +99,7 @@
         <div class="flex items-center">
             <a href="index.html" class="bg-slate-700 text-white px-3 py-1 rounded-lg text-sm ml-4 hover:bg-slate-600 transition">الرئيسية</a>
             <div class="flex items-center">
-                <img src="https://cdn-icons-png.flaticon.com/512/3211/3211468.png" alt="Logo" class="h-8 ml-3">
-                <h1 class="text-lg font-black tracking-tight">ThomasLab <span class="font-light opacity-70">| أدوات المطورين</span></h1>
+                <h1 class="text-lg font-black tracking-tight">ThomasLab <span class="font-light opacity-70">| QR Tools</span></h1>
             </div>
         </div>
         <button onclick="toggleTheme()" class="border border-sky-500 text-sky-500 px-4 py-1 rounded-full text-sm hover:bg-sky-500 hover:text-white transition">🌓 المظهر</button>
@@ -113,6 +112,7 @@
             <button onclick="showTool(2)" id="tab2" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm text-slate-400 hover:text-white">تجهيز الطباعة (PDF)</button>
             <button onclick="showTool(3)" id="tab3" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm text-slate-400 hover:text-white">الدمج الذكي (Direct)</button>
             <button onclick="showTool(4)" id="tab4" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm active-tab">بيانات الإكسيل (Excel)</button>
+            <button onclick="showTool(5)" id="tab5" class="flex-none px-4 py-2 rounded-lg transition-all font-bold text-xs md:text-sm text-slate-400 hover:text-white">كروت الهوية (ID Cards)</button>
         </div>
     </div>
 </nav>
@@ -234,6 +234,64 @@
             </div>
         </section>
 
+        <section id="tool5" class="tool-section transition-all">
+    <div class="glass-card p-6 md:p-10 border-indigo-500/50 shadow-indigo-900/10">
+        <div class="mb-8 border-r-4 border-indigo-500 pr-4">
+            <h2 class="text-2xl font-black">منشئ كروت الهوية المتكاملة</h2>
+            <p class="opacity-60 text-sm mt-1">مقاس 65x45 مم | 18 كارت في الصفحة</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="space-y-4">
+                <h3 class="font-black text-indigo-400 border-b border-white/10 pb-2">1. البيانات المتغيرة والشكل</h3>
+                <label class="block">
+                    <span class="text-xs font-bold opacity-60">ملف الأسماء والأكواد</span>
+                    <input type="file" id="t5Excel" accept=".xlsx, .xls, .csv" class="mt-1 block w-full border-2 border-dashed border-slate-700 p-3 rounded-xl text-sm">
+                </label>
+                <div class="flex items-center gap-4 bg-slate-800/50 p-3 rounded-xl">
+                    <span class="text-xs font-bold opacity-70">لون الاسم والبرواز:</span>
+                    <input type="color" id="t5Color" value="#0284c7" class="h-10 w-20 rounded cursor-pointer bg-transparent">
+                </div>
+                <input type="text" id="t5FileName" placeholder="اسم ملف الـ PDF النهائي" class="custom-input font-bold text-indigo-400">
+            </div>
+
+            <div class="space-y-4">
+                <h3 class="font-black text-emerald-400 border-b border-white/10 pb-2">2. البيانات الثابتة والشعارات</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="t5ServiceName" placeholder="اسم الخدمة" class="custom-input text-sm">
+                    <input type="text" id="t5LevelName" placeholder="اسم المرحلة" class="custom-input text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="block">
+                        <span class="text-[10px] font-bold opacity-50">لوجو الخدمة (يمين)</span>
+                        <input type="file" id="t5ServiceLogo" accept="image/*" class="text-[10px] w-full">
+                    </label>
+                    <label class="block">
+                        <span class="text-[10px] font-bold opacity-50">لوجو المرحلة (يسار)</span>
+                        <input type="file" id="t5LevelLogo" accept="image/*" class="text-[10px] w-full">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="processIDCards()" id="btnT5" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-2xl shadow-xl transition-all text-lg">إنشاء وتصدير 18 كارت/صفحة</button>
+<div id="progressContainerT5" class="hidden mt-8 space-y-3">
+    <div class="flex justify-between items-end">
+        <div class="flex flex-col">
+            <span id="currentActionT5" class="text-xs font-bold text-indigo-400">جاري بدء المعالجة...</span>
+            <span id="currentPersonT5" class="text-sm font-black text-white truncate max-w-[200px]">تحميل البيانات</span>
+        </div>
+        <span id="percentTextT5" class="text-2xl font-black text-indigo-500">0%</span>
+    </div>
+    <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden border border-white/5">
+        <div id="progressBarT5" class="bg-indigo-500 h-full w-0 transition-all duration-300 ease-out shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+    </div>
+</div>
+<div id="statusT5" class="mt-4 text-center font-bold text-indigo-500 min-h-[1rem]"></div>    </div>
+</section>
+
+        
+
     </main>
 
     <footer class="py-4">
@@ -261,7 +319,6 @@
             document.getElementById('tab' + n).classList.add('active-tab');
         }
 
-        // الحفاظ على المنطق البرمجي للأدوات كما هو تماماً
         document.getElementById('t2Input').addEventListener('change', function(e) {
             const el = document.getElementById('t2Count');
             if(e.target.files.length > 0) {
@@ -373,6 +430,125 @@
                 doc.save(`${customName}.pdf`); status.innerText = "✅ تم التحميل!";
             } catch (err) { alert("خطأ: " + err.message); status.innerText = "❌ فشل"; }
         }
+
+        async function processIDCards() {
+    const excelFile = document.getElementById('t5Excel').files[0];
+    const sLogoFile = document.getElementById('t5ServiceLogo').files[0];
+    const lLogoFile = document.getElementById('t5LevelLogo').files[0];
+    const themeColor = document.getElementById('t5Color').value;
+    
+    // عناصر شريط التقدم
+    const container = document.getElementById('progressContainerT5');
+    const bar = document.getElementById('progressBarT5');
+    const percentTxt = document.getElementById('percentTextT5');
+    const actionTxt = document.getElementById('currentActionT5');
+    const personTxt = document.getElementById('currentPersonT5');
+    const statusTxt = document.getElementById('statusT5');
+
+    if(!excelFile) return alert("يرجى اختيار ملف الإكسيل");
+
+    // إظهار شريط التقدم وتصفير الحالة
+    container.classList.remove('hidden');
+    statusTxt.innerText = "";
+    bar.style.width = "0%";
+    percentTxt.innerText = "0%";
+
+    try {
+        actionTxt.innerText = "جاري قراءة الملفات...";
+        const readImg = (file) => file ? new Promise(r => { const fr = new FileReader(); fr.onload=e=>r(e.target.result); fr.readAsDataURL(file); }) : null;
+        const sLogoImg = await readImg(sLogoFile);
+        const lLogoImg = await readImg(lLogoFile);
+        
+        const sName = document.getElementById('t5ServiceName').value || "";
+        const rawLevelName = document.getElementById('t5LevelName').value || "";
+        const lName = rawLevelName ? "" + rawLevelName : ""; //امكانية اضافة كلمة ثابته قبل السم المرحله (فريق او فصل اومجموعة)
+
+        const workbook = XLSX.read(await excelFile.arrayBuffer());
+        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+        const total = json.length;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4', compress: true });
+        
+        const cardW = 65, cardH = 40, marginX = 7.5, marginY = 10;
+        const canvas = document.getElementById('finalCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const scale = 3; 
+        canvas.width = 650 * scale; 
+        canvas.height = 400 * scale; 
+        ctx.scale(scale, scale);
+
+        let c=0, r=0;
+
+        for(let i=0; i < total; i++) {
+            const qrVal = String(json[i][json[i].hasOwnProperty('qr') ? 'qr' : Object.keys(json[i])[0]] || "");
+            const nameVal = json[i][Object.keys(json[i]).find(k => k.includes('الاسم') || k.toLowerCase().includes('name'))] || "-----------------";
+            
+            // تحديث شريط التقدم في الوقت الحقيقي
+            const percent = Math.round(((i + 1) / total) * 100);
+            bar.style.width = percent + "%";
+            percentTxt.innerText = percent + "%";
+            actionTxt.innerText = `جاري معالجة الكارت (${i + 1} من ${total})`;
+            personTxt.innerText = nameVal;
+
+            // توليد QR
+            const div = document.getElementById('temp-qr'); div.innerHTML = "";
+            new QRCode(div, {text: qrVal, width: 400, height: 400, correctLevel: QRCode.CorrectLevel.H});
+            await new Promise(res => setTimeout(res, 30)); // مهلة قصيرة للسماح للمتصفح بتحديث الواجهة
+            const qrCanvas = div.querySelector('canvas');
+
+            // رسم الكارت
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, 650, 400);
+            ctx.strokeStyle = themeColor;
+            ctx.lineWidth = 15; 
+            ctx.strokeRect(0, 0, 650, 400);
+
+            if(sLogoImg) {
+                const img = await new Promise(r => {const i=new Image(); i.onload=()=>r(i); i.src=sLogoImg;});
+                ctx.drawImage(img, 650 - 110, 20, 85, 85); 
+            }
+            if(lLogoImg) {
+                const img = await new Promise(r => {const i=new Image(); i.onload=()=>r(i); i.src=lLogoImg;});
+                ctx.drawImage(img, 25, 20, 85, 85); 
+            }
+
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#1e293b"; ctx.font = "bold 27px Cairo"; 
+            ctx.fillText(sName, 325, 50);
+            ctx.font = "bold 22px Cairo"; ctx.fillStyle = "#64748b";
+            ctx.fillText(lName, 325, 85);
+
+            ctx.beginPath(); ctx.moveTo(120, 105); ctx.lineTo(530, 105);
+            ctx.lineWidth = 2; ctx.strokeStyle = "#e2e8f0"; ctx.stroke();
+
+            ctx.drawImage(qrCanvas, 45, 135, 210, 210);
+            ctx.textAlign = "right";
+            ctx.fillStyle = themeColor; ctx.font = "bold 34px Cairo";
+            ctx.fillText(nameVal.split(' ').slice(0, 3).join(' '), 600, 215); 
+            ctx.fillStyle = "#334155"; ctx.font = "bold 28px Cairo";
+            ctx.fillText(`كود: ${qrVal}`, 600, 275); 
+
+            doc.addImage(canvas.toDataURL("image/png", 1.0), 'PNG', marginX+(c*cardW), marginY+(r*cardH), cardW, cardH, undefined, 'FAST');
+            
+            c++; if(c >= 3) { c=0; r++; }
+            if(r >= 7 && i < total - 1) { doc.addPage(); c=0; r=0; }
+        }
+
+        actionTxt.innerText = "جاري حفظ ملف PDF...";
+        doc.save(`${document.getElementById('t5FileName').value || 'ID_Cards'}.pdf`);
+        
+        // النجاح
+        statusTxt.innerText = "✅ تم الانتهاء بنجاح!";
+        personTxt.innerText = "تم حفظ الملف";
+        setTimeout(() => container.classList.add('hidden'), 5000); // إخفاء الشريط بعد 5 ثواني
+
+    } catch (err) {
+        console.error(err);
+        statusTxt.innerText = "❌ حدث خطأ: " + err.message;
+        container.classList.add('border-red-500');
+    }
+}
 
         window.onload = () => showTool(4);
     </script>
